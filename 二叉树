@@ -1,0 +1,126 @@
+# 二叉树
+ 二叉树是每个结点最多有两个子树的有序数。从根结点开始传输数据，下一位待传的数据与根结点相比较
+ 小于根结点的数放在根结点的左子树处，大于根结点的数放在根结点的右子树处。接下来传入的数依次与根结点比较，
+ 若小于根结点，则与根结点的左子树相比较，小于左子树则放在左子树的左子树处，大于左子树的，放在左子树的右子树处。
+ 大于根结点的数放在右子树处，与左子树处类似。接下来传入的数据依次比较可得相应位置。
+## 二叉树插入结点
+ 由于二叉树是有序的，所以采用链表创建二叉树。
+ 
+ 思路：首先创建结点类和二叉树类。二叉树中插入结点首先要考虑根结点问题，其次每次插入新的结点的时候要与父结点的
+ 值相比较，以此确定该结点存放的位置。这其中要考虑当前父结点下的左右子树是否已有数据，若无，则直接插入新结点，
+ 若有，则将左子树或右子树指为新的父结点，进行新的判断。最终找到合适存放位置。
+    
+    from pprint import pformat
+    class Node:
+        def __init__(self,value,parent):
+            self.value=value
+            self.parent=parent
+            self.left=None
+            self.right=None
+        def __repr__(self):
+            if self.left is None and self.right is None:
+                return str(self.value)
+            return pformat({'%s'%(self.value):(self.left,self.right)},indent=1)
+    class binarySearchTree:
+        def __init__(self,root=None):
+            self.root=root
+        def __str__(self):
+            return str(self.root)
+        def is_empty(self):
+            if self.root is None:
+                return True
+            else:
+                return False
+        def __insert(self,value):#这里每次只判断一个结点，所以每次只能插入一个结点
+            new_node=Node(value,None)
+            if self.is_empty():
+                self.root=new_node
+            else:
+                parent_node=self.root
+                while True:
+                    if value<parent_node.value:
+                        if parent_node.left is None:
+                            parent_node.left=new_node
+                            break
+                        else:
+                            parent_node=parent_node.left
+                    elif value>=parent_node.value:
+                        if parent_node.right is None:
+                            parent_node.right=new_node
+                            break
+                        else:
+                            parent_node=parent_node.right
+                new_node.parent=parent_node
+        def insert(self,*args):#此函数是为了插入连续的结点
+            for value in args:
+                self.__insert(value)
+            return self.root
+       
+       
+## 二叉树查询结点
+ 思路：待查找的值与二叉树中各个值相对比，查询过程中，依据左子树小于父结点，右子树大于父结点，
+   将左子树与右子树赋给根结点，以此创建动态根结点，循环查询，以获取目标值。
+ 
+     def search(self,value):
+        if self.is_empty():
+            print('空树')
+        else:
+            node=self.root
+            while node and node.value!=value:
+                if value<node.value:
+                    node=node.left
+                else:
+                    node=node.right
+            # print(node)
+            return node
+
+## 二叉树删除结点
+ 思路：二叉树删除的时候需要考虑此结点的父结点与左右子树的指向问题。因此
+ 二叉树删除结点需要考虑四种不同的情况。
+ 
+ 1.左子树与右子树均为空，就可以直接调用函数__reassign_nodes删除函数
+  __reassign_nodes函数就是为了前三种情况的指向问题而设计出的。__reassign_nodes函数
+  考虑到了三种情况，第一种就是左右子树为空，则可以直接将待删除对象置为None，并且将None结点的父结点
+  指向目标值的父结点。删除函数出现1情况是直接调用__reassign_nodes函数即可。
+  2.待删除对象的左子树为空。此为__reassign_nodes的第二种情况，待删除对象的右子树存在，则
+  将目标结点的父结点的右子树指向目标结点的右子树，这样就直接跨过了目标结点。建立了联系。
+  3.待删除对象的右子树为空。此为__reassign_nodes的第三种情况。与第二种情况操作类似。
+  4.左右子树均存在。此处需要使用get_max函数来判断目标结点的左结点处的最大值。此操作目的是为了将找到的最大值赋给目标值
+  ，然后将最大值的位置处的数值置为None，这样就可以使二叉树完整连接。此处选择左子树的最大值是为了保证
+  二叉树的有序性，这样做是最简便的方法，将左子树的最大之取出，目标值的左子树一定小于最大值，而目标值的右子树一定大于目标值，
+  将最大值填入目标值处，可保证左子树<当前结点（最大值）<右子树，即保证了二叉树的有序性。
+ 
+             
+    def remove(self,value):
+        node=self.search(value)
+        if node is not None:
+            if node.left is None and node.right is None:
+                self.__reassign_nodes(node,None)
+            elif node.left is None:
+                self.__reassign_nodes(node,node.right)
+            elif node.right is None:
+                self.__reassign_nodes(node,node.left)
+            else:
+                temp_node=self.get_max(node.left)
+                self.remove(temp_node.value)
+                node.value=temp_node.value  #这里就直接把待删除结点的最大左结点值赋给待删除值即可，不用考虑指向问题，
+                                                # 因为本来的待删除结点就已经指向他自己的父结点了
+    def is_right(self,node):
+        return node==node.parent.right
+    def __reassign_nodes(self,node,new_children):
+        if new_children is not None:
+            new_children.parent=node.parent
+        if node.parent is not None:
+            if self.is_right(node):
+                node.parent.right=new_children
+            else:
+                node.parent.left=new_children
+        else:
+            self.root=new_children
+    def get_max(self,node=None):
+        if node is None:
+            node=self.root
+        if not self.is_empty():
+            while node.right is not None:
+                node=node.right
+        return node    
