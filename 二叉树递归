@@ -1,0 +1,47 @@
+# 深度优先
+ 是一种算法，是沿着树的深度遍历树的节点，尽可能深的搜索树的分支。当节点v的所有边都己被探寻过，搜索将回溯到发现节点v的那条边的起始节点。
+ 这一过程一直进行到已发现从源节点可达的所有节点为止。如果还存在未被发现的节点，则选择其中一个作为源节点并重复以上过程，整个进程反复进行直到所有节点都被访问为止。
+## 二叉树中的深度优化
+
+
+深度优化可分为三种：先序，中序，后序
+
+先序是指在二叉树中取值顺序为根结点-->左子树-->右子树
+中序是指在二叉树中取值顺序为左子树-->根结点-->右子树
+后序是指在二叉树中取值顺序为左子树-->右子树-->根结点
+
+ 先序递归：
+ 
+ 二叉树递归时，从根结点出发，依次遍历左子树与右子树，循环往复此顺序，直至依次取到值。其中递归时。
+每次都要判断当前结点下的左结点与右节点，并取出左右值或者进行下一轮的左右值查询，直至取到值，取到值之后返回上一节点，继续判断当前结点的右子树。
+依次类推直到将二叉树的值按照中左右的顺序依次打印出来
+     
+            def pre_order(self,node):
+        if node is None:
+            return
+        print(node.value,end=' ')
+        self.pre_order(node.left)
+        self.pre_order(node.right)
+        return node
+     
+ 中序递归：与先序递归过程类似，只不过是顺序有所改变而已。
+ 
+           def inner_order(self,node):
+        if node is  None:
+            return
+        self.inner_order(node.left)
+        print(node.value,end=' ')
+        self.inner_order(node.right)
+        return node
+        
+ 后序递归：
+    
+          def pro_order(self,node):
+        if node is None:
+            return
+        self.pro_order(node.left)
+        self.pro_order(node.right)
+        print(node.value,end=' ')
+        return node
+
+
